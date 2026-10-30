@@ -14,6 +14,7 @@
     "labels": ["dependencies", "security"],
     "minimumReleaseAge": "7 days"
   },
+  "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
       "description": "Update types that carry no release timestamp are raised without the age check (a rule for them would hold the PR forever). Lock file maintenance relies on the repo's own pnpm minimumReleaseAge or uv exclude-newer, see README.",
@@ -33,10 +34,24 @@
       "minimumReleaseAge": null
     },
     {
+      "description": "GHCR returns no release timestamps, so the 7-day rule would hold a digest update forever. Waived only for the owner's own images built by CI; third-party GHCR images (uv, text-embeddings-inference, onecli) keep the rule.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/sinimus/**"],
+      "matchUpdateTypes": ["digest"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "One PR per repository for everything that is not a major update. Major updates keep one PR per dependency (monorepo groups from config:recommended still apply).",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
       "groupName": "weekly updates",
       "groupSlug": "weekly"
+    },
+    {
+      "description": "GitHub Actions get their own weekly PR, so a PR either touches .github/ or does not. Major updates of an Action stay one PR each.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "github-actions",
+      "groupSlug": "github-actions"
     },
     {
       "matchUpdateTypes": ["major"],

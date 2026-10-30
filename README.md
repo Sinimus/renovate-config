@@ -24,8 +24,9 @@ Shared [Renovate](https://docs.renovatebot.com/) presets for the Sinimus reposit
 | Grouping | One PR "weekly updates" per repository for minor, patch, digest and pin updates | Major updates stay one PR per dependency; monorepo groups from `config:recommended` still apply |
 | Release age | `minimumReleaseAge: "7 days"`, `internalChecksFilter: "strict"` | No branch or PR exists until the version is 7 days old |
 | Security fixes | `vulnerabilityAlerts` with the same 7 days | Raised on any day (they skip schedule and limits), in their own PR, but only for versions at least 7 days old |
-| GitHub Actions | `helpers:pinGitHubActionDigests` | `uses: owner/action@<sha> # v4` |
-| Docker | `dockerfile` and `docker-compose` managers of `config:recommended` | Tags are updated, digests are not pinned |
+| OSV | `osvVulnerabilityAlerts: true` | Vulnerability PRs from the OSV database for direct dependencies (npm, PyPI, Go and others), in place of GitHub Dependabot alerts; OSV also makes Renovate skip updates flagged as malicious |
+| GitHub Actions | `helpers:pinGitHubActionDigests`, own group `github-actions` | `uses: owner/action@<sha> # v4`; non-major Action updates come in a separate weekly PR, so a PR either touches `.github/` or does not |
+| Docker | `dockerfile` and `docker-compose` managers of `config:recommended` | Tags are updated, digests are not pinned. GHCR has no release timestamps, so digest updates of `ghcr.io/sinimus/**` (own CI images) skip the 7-day rule; third-party GHCR images keep it |
 | Automerge | Allowlist of six simple sites, non-major only, only after green CI | `packageRules` entry with `matchRepositories`; Renovate merges itself (`platformAutomerge: false`) |
 | Concurrency | `prConcurrentLimit: 5` | Bounds CI minutes on a first run |
 

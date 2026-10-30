@@ -12,7 +12,8 @@
   "automerge": false,
   "vulnerabilityAlerts": {
     "labels": ["dependencies", "security"],
-    "minimumReleaseAge": "7 days"
+    "minimumReleaseAge": "2 days",
+    "automerge": false
   },
   "osvVulnerabilityAlerts": true,
   "packageRules": [

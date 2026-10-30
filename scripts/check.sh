@@ -19,7 +19,9 @@ done
 # 2. Invariants of default.json.
 d=default.json
 [ "$(jq -r '.minimumReleaseAge' $d)" = "7 days" ] || fail "minimumReleaseAge is not 7 days"
-[ "$(jq -r '.vulnerabilityAlerts.minimumReleaseAge' $d)" = "7 days" ] || fail "vulnerabilityAlerts lost the 7-day age"
+# Security PRs: 2-day fast path (r616), never automerged, also in the automerge repositories.
+[ "$(jq -r '.vulnerabilityAlerts.minimumReleaseAge' $d)" = "2 days" ] || fail "vulnerabilityAlerts age is not 2 days"
+[ "$(jq -r '.vulnerabilityAlerts.automerge' $d)" = "false" ] || fail "vulnerabilityAlerts must set automerge false"
 [ "$(jq -r '.internalChecksFilter' $d)" = "strict" ] || fail "internalChecksFilter is not strict"
 [ "$(jq -r '.automerge' $d)" = "false" ] || fail "top-level automerge must be false"
 jq -e '.extends | index("helpers:pinGitHubActionDigests")' $d >/dev/null || fail "Actions are not pinned"

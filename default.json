@@ -43,12 +43,14 @@
       "addLabels": ["major"]
     },
     {
-      "description": "Automerge only for the static sites, only for non-major updates and only when CI is green. Production apps are merged by hand. Renovate merges itself (platformAutomerge off) so no repository setting is needed.",
+      "description": "Automerge only for the simple sites (static or a stateless companion server, ruling r508), only for non-major updates and only when CI is green. Production apps are merged by hand. Renovate merges itself (platformAutomerge off) so no repository setting is needed.",
       "matchRepositories": [
         "Sinimus/stationfall-companion-app",
         "Sinimus/jotl-companion",
         "Sinimus/gwt-new_zealand-companion",
-        "Sinimus/hegemony-companion-app"
+        "Sinimus/hegemony-companion-app",
+        "Sinimus/root-companion",
+        "Sinimus/eldritch-horror-companion-app"
       ],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
       "automerge": true,

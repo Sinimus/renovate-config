@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, automerge only for the static sites listed below.",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "timezone": "Europe/Prague",
+  "schedule": ["* 5-8 * * 1"],
+  "updateNotScheduled": false,
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "automerge": false,
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "minimumReleaseAge": "7 days"
+  },
+  "packageRules": [
+    {
+      "description": "Update types that carry no release timestamp are raised without the age check (a rule for them would hold the PR forever). Lock file maintenance relies on the repo's own pnpm minimumReleaseAge or uv exclude-newer, see README.",
+      "matchUpdateTypes": [
+        "lockFileMaintenance",
+        "lockfileUpdate",
+        "replacement",
+        "pin",
+        "bump",
+        "rollback"
+      ],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Pinning a GitHub Action to the digest its tag already resolves to is safer than leaving it floating, so it does not wait for the age check.",
+      "matchUpdateTypes": ["pinDigest"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "One PR per repository for everything that is not a major update. Major updates keep one PR per dependency (monorepo groups from config:recommended still apply).",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "weekly updates",
+      "groupSlug": "weekly"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"]
+    },
+    {
+      "description": "Automerge only for the static sites, only for non-major updates and only when CI is green. Production apps are merged by hand. Renovate merges itself (platformAutomerge off) so no repository setting is needed.",
+      "matchRepositories": [
+        "Sinimus/stationfall-companion-app",
+        "Sinimus/hanka-website",
+        "Sinimus/jotl-companion",
+        "Sinimus/gwt-new_zealand-companion",
+        "Sinimus/hegemony-companion-app",
+        "Sinimus/root-companion"
+      ],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false,
+      "ignoreTests": false
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Opt-in monthly lock file maintenance (pnpm, uv). Renovate does not pass its minimumReleaseAge to pnpm or uv, so extend this only in repos that carry the rule themselves: pnpm-workspace.yaml minimumReleaseAge, pyproject.toml [tool.uv] exclude-newer.",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 5-8 1-7 * 1"],
+    "automerge": false
+  }
+}

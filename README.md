@@ -26,10 +26,10 @@ Shared [Renovate](https://docs.renovatebot.com/) presets for the Sinimus reposit
 | Security fixes | `vulnerabilityAlerts` with the same 7 days | Raised on any day (they skip schedule and limits), in their own PR, but only for versions at least 7 days old |
 | GitHub Actions | `helpers:pinGitHubActionDigests` | `uses: owner/action@<sha> # v4` |
 | Docker | `dockerfile` and `docker-compose` managers of `config:recommended` | Tags are updated, digests are not pinned |
-| Automerge | Allowlist of six static sites, non-major only, only after green CI | `packageRules` entry with `matchRepositories`; Renovate merges itself (`platformAutomerge: false`) |
+| Automerge | Allowlist of four static sites, non-major only, only after green CI | `packageRules` entry with `matchRepositories`; Renovate merges itself (`platformAutomerge: false`) |
 | Concurrency | `prConcurrentLimit: 5` | Bounds CI minutes on a first run |
 
-Automerge repositories: `stationfall-companion-app`, `hanka-website`, `jotl-companion`, `gwt-new_zealand-companion`, `hegemony-companion-app`, `root-companion`. Everything else is merged by hand. A new repository is never automerged until it is added to that list in `default.json`.
+Automerge repositories: `stationfall-companion-app`, `jotl-companion`, `gwt-new_zealand-companion`, `hegemony-companion-app`, all plain nginx images with static files. Everything else is merged by hand, including `hanka-website` (Astro Node server for the contact form since 30 October 2026) and `root-companion` (Next.js standalone server). A new repository is never automerged until it is added to that list in `default.json`, and only while it stays a static site.
 
 ## Behaviour that is not obvious
 
@@ -40,7 +40,7 @@ Automerge repositories: `stationfall-companion-app`, `hanka-website`, `jotl-comp
 
 ## Checks
 
-`scripts/check.sh` runs `renovate-config-validator --strict` on both presets (through `pnpm dlx`, Node 24) and asserts the invariants above with `jq`: 7 days in both places, strict filter, exactly one automerge rule, limited to the six repositories and without major updates, lock file maintenance never automerged.
+`scripts/check.sh` runs `renovate-config-validator --strict` on both presets (through `pnpm dlx`, Node 24) and asserts the invariants above with `jq`: 7 days in both places, strict filter, exactly one automerge rule, limited to the four repositories and without major updates, lock file maintenance never automerged.
 
 The behaviour was also checked once with `renovate --platform=local --dry-run=lookup` on a clone of `stationfall-companion-app` with `default.json` as its `renovate.json`: updates younger than 7 days were held back (`next` resolved to 16.4.2 instead of the 6-day-old 16.4.3), and `pinDigest` updates appeared for every Action. The local platform does not build branches, so grouping and automerge were not exercised there; they show on the first real run.
 

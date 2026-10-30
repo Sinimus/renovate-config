@@ -46,11 +46,9 @@
       "description": "Automerge only for the static sites, only for non-major updates and only when CI is green. Production apps are merged by hand. Renovate merges itself (platformAutomerge off) so no repository setting is needed.",
       "matchRepositories": [
         "Sinimus/stationfall-companion-app",
-        "Sinimus/hanka-website",
         "Sinimus/jotl-companion",
         "Sinimus/gwt-new_zealand-companion",
-        "Sinimus/hegemony-companion-app",
-        "Sinimus/root-companion"
+        "Sinimus/hegemony-companion-app"
       ],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
       "automerge": true,

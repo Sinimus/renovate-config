@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": [
+    "Binaries pinned in a Dockerfile as a pair of ARG lines: the release tag (with its v where the project uses one) and the sha256 of the asset, raised together. The comment 'renovate:' sits right above the version line, the sha256 line right below it."
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>github-release-attachments) depName=(?<depName>\\S+)\\nARG \\w+_VERSION=(?<currentValue>\\S+)\\nARG \\w+_SHA256=(?<currentDigest>[a-f0-9]{64})"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "npm packages pinned as ARG (npm, pnpm): registry version, no sha256.",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>npm) depName=(?<depName>\\S+)\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
+      ]
+    }
+  ]
+}

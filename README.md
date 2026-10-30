@@ -15,6 +15,19 @@ Shared [Renovate](https://docs.renovatebot.com/) presets for the Sinimus reposit
 |---|---|---|
 | `default.json` | `github>Sinimus/renovate-config` | Schedule, grouping, 7-day release age, pinned Actions, automerge allowlist |
 | `lockfile.json` | `github>Sinimus/renovate-config:lockfile` | Monthly lock file maintenance for pnpm and uv, opt-in per repository |
+| `github-binaries.json` | `github>Sinimus/renovate-config:github-binaries` | Opt-in: binaries and npm tools pinned as `ARG` lines in a Dockerfile, see below |
+
+## Binaries pinned in a Dockerfile (`github-binaries.json`)
+
+Two regex managers for any `Dockerfile`. A GitHub release asset is pinned as a comment and two `ARG` lines, raised together (version and sha256 of the asset):
+
+```dockerfile
+# renovate: datasource=github-release-attachments depName=hetznercloud/cli
+ARG HCLOUD_VERSION=v1.70.2
+ARG HCLOUD_SHA256=<64 hex characters>
+```
+
+The version must be the release tag exactly, with its `v` where the project uses one: Renovate looks the digest up under `releases/tags/<version>` and silently skips the update when that tag does not exist. An npm tool installed in the image is pinned the same way with `datasource=npm` and only the `_VERSION` line. Both datasources carry release timestamps, so the 7-day rule of `default.json` applies. The preset comes from the konzole repository (PR #73, 30 October 2026), where `--dry-run=extract` found all 12 pinned binaries.
 
 ## What `default.json` does
 

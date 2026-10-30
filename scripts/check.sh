@@ -9,7 +9,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 # 1. Renovate's validator, run on a copy named renovate.json so it is checked as repo config.
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-for preset in default lockfile; do
+for preset in default lockfile github-binaries; do
   mkdir "$tmp/$preset"
   cp "$preset.json" "$tmp/$preset/renovate.json"
   (cd "$tmp/$preset" && fnm exec --using 24.22.2 pnpm dlx --package=renovate renovate-config-validator --strict renovate.json 2>&1 \

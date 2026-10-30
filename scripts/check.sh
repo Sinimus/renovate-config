@@ -32,6 +32,13 @@ expected='["Sinimus/eldritch-horror-companion-app","Sinimus/gwt-new_zealand-comp
 [ "$(jq -c '[.packageRules[] | select(.automerge == true) | .matchRepositories[]] | sort' $d)" = "$expected" ] \
   || fail "automerge repository list differs from the agreed sites (r508)"
 
+# OSV alerts on; the GHCR age waiver covers only the owner's images and only digests.
+[ "$(jq -r '.osvVulnerabilityAlerts' $d)" = "true" ] || fail "osvVulnerabilityAlerts is not on"
+[ "$(jq -c '[.packageRules[] | select(.matchDatasources == ["docker"] and has("minimumReleaseAge") and .minimumReleaseAge == null) | {p: .matchPackageNames, u: .matchUpdateTypes}]' $d)" = '[{"p":["ghcr.io/sinimus/**"],"u":["digest"]}]' ] \
+  || fail "the docker age waiver must be exactly ghcr.io/sinimus/** digests"
+jq -e '.packageRules[] | select(.groupSlug == "github-actions") | .matchManagers == ["github-actions"] and (.matchUpdateTypes | index("major") | not)' $d >/dev/null \
+  || fail "GitHub Actions group missing or includes major updates"
+
 # lockfile.json never automerges.
 [ "$(jq -r '.lockFileMaintenance.automerge' lockfile.json)" = "false" ] || fail "lockfile preset must not automerge"
 

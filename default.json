@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, no automerge until a deterministic rule exists (ruling r617).",
+  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, automerge only by class B (tooling, non-deploying repositories) or class C (repositories with browser tests before deploy), ruling r617.",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "timezone": "Europe/Prague",
   "schedule": ["* 5-8 * * 1"],
@@ -57,6 +57,134 @@
     {
       "matchUpdateTypes": ["major"],
       "addLabels": ["major"]
+    },
+    {
+      "description": "Major updates of GitHub Actions: one PR per repository instead of one per Action. Never automerged.",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "github-actions major",
+      "groupSlug": "github-actions-major"
+    },
+    {
+      "description": "Pin the last FROM of a Dockerfile to its digest, so the base image moves only through a PR that waited 7 days. Only for versioned tags: an unversioned tag (stable-alpine, latest) has no release timestamp, and its digest updates would wait forever under the 7-day rule.",
+      "matchManagers": ["dockerfile"],
+      "matchDepTypes": ["final"],
+      "matchCurrentValue": "/^\\d/",
+      "pinDigests": true
+    },
+    {
+      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and deploy only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
+      "matchRepositories": [
+        "Sinimus/jotl-companion",
+        "Sinimus/hegemony-companion-app",
+        "Sinimus/gwt-new_zealand-companion",
+        "Sinimus/root-companion"
+      ],
+      "matchManagers": ["!github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
+    },
+    {
+      "description": "Automerge class B: tools that cannot change what runs (lint, format, types, test runners), in their own weekly PR, in repositories that do not deploy on merge. Renovate merges itself only when every check run on the branch is green.",
+      "matchRepositories": [
+        "Sinimus/konzole",
+        "Sinimus/unraid-scripts",
+        "Sinimus/rag-service",
+        "Sinimus/nanoclaw",
+        "Sinimus/kuzu-mcp-server"
+      ],
+      "matchDepTypes": ["devDependencies", "dependency-groups", "tool.uv.dev-dependencies"],
+      "matchPackageNames": [
+        "eslint",
+        "@eslint/**",
+        "eslint-*",
+        "typescript-eslint",
+        "@typescript-eslint/**",
+        "prettier",
+        "prettier-plugin-*",
+        "@types/**",
+        "vitest",
+        "@vitest/**",
+        "jest",
+        "@jest/**",
+        "jest-*",
+        "@testing-library/**",
+        "@playwright/test",
+        "husky",
+        "lint-staged",
+        "knip",
+        "ruff",
+        "mypy",
+        "pytest",
+        "pytest-*",
+        "types-*"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "weekly tooling",
+      "groupSlug": "weekly-tooling",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
+    },
+    {
+      "description": "Automerge class B: non-major GitHub Actions (uses: owner/action) in repositories that do not deploy on merge.",
+      "matchRepositories": [
+        "Sinimus/konzole",
+        "Sinimus/unraid-scripts",
+        "Sinimus/rag-service",
+        "Sinimus/nanoclaw",
+        "Sinimus/kuzu-mcp-server"
+      ],
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["action"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
+    },
+    {
+      "description": "Everything else the github-actions manager finds in class B repositories (runtime versions in with:, service and container images, runner images) is not an Action: own PR, never automerged, so the Actions PR stays mergeable on its own.",
+      "matchRepositories": [
+        "Sinimus/konzole",
+        "Sinimus/unraid-scripts",
+        "Sinimus/rag-service",
+        "Sinimus/nanoclaw",
+        "Sinimus/kuzu-mcp-server"
+      ],
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["!action"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "github-actions versions",
+      "groupSlug": "github-actions-versions",
+      "automerge": false
+    },
+    {
+      "description": "Actions in workflows that deploy, publish or write to the repository are never automerged; they get their own PR so the rest of the Actions group can still merge.",
+      "matchRepositories": [
+        "Sinimus/konzole",
+        "Sinimus/unraid-scripts",
+        "Sinimus/rag-service",
+        "Sinimus/nanoclaw",
+        "Sinimus/kuzu-mcp-server"
+      ],
+      "matchManagers": ["github-actions"],
+      "matchFileNames": [
+        ".github/workflows/deploy*.{yml,yaml}",
+        ".github/workflows/release*.{yml,yaml}",
+        ".github/workflows/*publish*.{yml,yaml}",
+        ".github/workflows/docker-build.{yml,yaml}",
+        ".github/workflows/ci-cd.{yml,yaml}",
+        ".github/workflows/pipeline.{yml,yaml}",
+        ".github/workflows/bump-version.{yml,yaml}",
+        ".github/workflows/update-tokens.{yml,yaml}",
+        ".github/workflows/label-pr.{yml,yaml}"
+      ],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "github-actions deploy",
+      "groupSlug": "github-actions-deploy",
+      "automerge": false
     }
   ]
 }

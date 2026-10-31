@@ -59,7 +59,7 @@
       "addLabels": ["major"]
     },
     {
-      "description": "Major updates of GitHub Actions: one PR per repository instead of one per Action. Never automerged.",
+      "description": "Every major update the github-actions manager finds (Actions, runner images, runtime versions in with:): one PR per repository instead of one per dependency. Never automerged.",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["major"],
       "groupName": "github-actions major",

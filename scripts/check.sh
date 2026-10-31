@@ -30,7 +30,7 @@ jq -e '.extends | index("helpers:pinGitHubActionDigests")' $d >/dev/null || fail
 [ "$(jq '[.packageRules[] | select(.automerge == true)] | length' $d)" = "1" ] || fail "expected exactly one automerge rule"
 jq -e '.packageRules[] | select(.automerge == true) | (.matchRepositories | length) > 0 and (.matchUpdateTypes | index("major") | not)' $d >/dev/null \
   || fail "automerge rule is not limited to listed repos and non-major updates"
-expected='["Sinimus/eldritch-horror-companion-app","Sinimus/gwt-new_zealand-companion","Sinimus/hegemony-companion-app","Sinimus/jotl-companion","Sinimus/root-companion","Sinimus/stationfall-companion-app"]'
+expected='["Sinimus/eldritch-horror-companion-app","Sinimus/gwt-new_zealand-companion","Sinimus/hegemony-companion-app","Sinimus/jotl-companion","Sinimus/stationfall-companion-app"]'
 [ "$(jq -c '[.packageRules[] | select(.automerge == true) | .matchRepositories[]] | sort' $d)" = "$expected" ] \
   || fail "automerge repository list differs from the agreed sites (r508)"
 

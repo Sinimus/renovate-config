@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, automerge only for the static sites listed below.",
+  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, no automerge until a deterministic rule exists (ruling r617).",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "timezone": "Europe/Prague",
   "schedule": ["* 5-8 * * 1"],
@@ -57,21 +57,6 @@
     {
       "matchUpdateTypes": ["major"],
       "addLabels": ["major"]
-    },
-    {
-      "description": "Automerge only for the static sites (plain nginx images with static files; root-companion removed by ruling r617), only for non-major updates and only when CI is green. Production apps are merged by hand. Renovate merges itself (platformAutomerge off) so no repository setting is needed.",
-      "matchRepositories": [
-        "Sinimus/stationfall-companion-app",
-        "Sinimus/jotl-companion",
-        "Sinimus/gwt-new_zealand-companion",
-        "Sinimus/hegemony-companion-app",
-        "Sinimus/eldritch-horror-companion-app"
-      ],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": false,
-      "ignoreTests": false
     }
   ]
 }

@@ -19,20 +19,15 @@ done
 # 2. Invariants of default.json.
 d=default.json
 [ "$(jq -r '.minimumReleaseAge' $d)" = "7 days" ] || fail "minimumReleaseAge is not 7 days"
-# Security PRs: 2-day fast path (r616), never automerged, also in the automerge repositories.
+# Security PRs: 2-day fast path (r616), never automerged.
 [ "$(jq -r '.vulnerabilityAlerts.minimumReleaseAge' $d)" = "2 days" ] || fail "vulnerabilityAlerts age is not 2 days"
 [ "$(jq -r '.vulnerabilityAlerts.automerge' $d)" = "false" ] || fail "vulnerabilityAlerts must set automerge false"
 [ "$(jq -r '.internalChecksFilter' $d)" = "strict" ] || fail "internalChecksFilter is not strict"
 [ "$(jq -r '.automerge' $d)" = "false" ] || fail "top-level automerge must be false"
 jq -e '.extends | index("helpers:pinGitHubActionDigests")' $d >/dev/null || fail "Actions are not pinned"
 
-# Exactly one rule may enable automerge, it must be limited to the static sites and to non-major updates.
-[ "$(jq '[.packageRules[] | select(.automerge == true)] | length' $d)" = "1" ] || fail "expected exactly one automerge rule"
-jq -e '.packageRules[] | select(.automerge == true) | (.matchRepositories | length) > 0 and (.matchUpdateTypes | index("major") | not)' $d >/dev/null \
-  || fail "automerge rule is not limited to listed repos and non-major updates"
-expected='["Sinimus/eldritch-horror-companion-app","Sinimus/gwt-new_zealand-companion","Sinimus/hegemony-companion-app","Sinimus/jotl-companion","Sinimus/stationfall-companion-app"]'
-[ "$(jq -c '[.packageRules[] | select(.automerge == true) | .matchRepositories[]] | sort' $d)" = "$expected" ] \
-  || fail "automerge repository list differs from the agreed sites (r508)"
+# No rule may enable automerge until a deterministic automerge rule exists (r617, 31 October 2026).
+[ "$(jq '[.packageRules[] | select(.automerge == true)] | length' $d)" = "0" ] || fail "no package rule may enable automerge (r617)"
 
 # OSV alerts on; the GHCR age waiver covers only the owner's images and only digests.
 [ "$(jq -r '.osvVulnerabilityAlerts' $d)" = "true" ] || fail "osvVulnerabilityAlerts is not on"

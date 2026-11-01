@@ -73,12 +73,15 @@
       "pinDigests": true
     },
     {
-      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and deploy only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
+      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and are merged (or deployed) only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
       "matchRepositories": [
         "Sinimus/jotl-companion",
         "Sinimus/hegemony-companion-app",
         "Sinimus/gwt-new_zealand-companion",
-        "Sinimus/root-companion"
+        "Sinimus/root-companion",
+        "Sinimus/stationfall-companion-app",
+        "Sinimus/hanka-website",
+        "Sinimus/sinimus-portfolio"
       ],
       "matchManagers": ["!github-actions"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],

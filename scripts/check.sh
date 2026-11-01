@@ -18,13 +18,17 @@ CLASS_B=(
   Sinimus/nanoclaw
   Sinimus/kuzu-mcp-server
 )
-# Class C: pull requests build the production image, open every key page in a headless browser,
-# and the deploy runs only after those checks. The whole weekly group automerges, Actions excepted.
+# Class C: pull requests build the production image and open every key page in a headless browser;
+# the deploy runs only after those checks (hanka-website deploys by Coolify webhook, so there the
+# green PR check is the gate). The whole weekly group automerges, Actions excepted.
 CLASS_C=(
   Sinimus/jotl-companion
   Sinimus/hegemony-companion-app
   Sinimus/gwt-new_zealand-companion
   Sinimus/root-companion
+  Sinimus/stationfall-companion-app
+  Sinimus/hanka-website
+  Sinimus/sinimus-portfolio
 )
 # The only package names the "weekly tooling" group may hold.
 TOOLING=(

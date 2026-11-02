@@ -58,6 +58,12 @@
       "groupSlug": "github-actions"
     },
     {
+      "description": "requires-python in pyproject.toml is a Python runtime bound, not a dependency. Raising it alone breaks the repository: CI, Dockerfiles, .python-version and uv.lock stay on the old version (homegym #10, 2 November 2026: >=3.12,<3.13 became >=3.15,<3.16 inside the weekly group, uv sync --frozen failed). The runtime moves in its own deliberate PR.",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["requires-python"],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": ["major"],
       "addLabels": ["major"]
     },

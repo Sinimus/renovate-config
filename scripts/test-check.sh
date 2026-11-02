@@ -52,6 +52,8 @@ mutate tooling-group-elsewhere default.json '.packageRules += [{"matchPackageNam
 mutate top-level-automerge   default.json '.automerge = true'
 mutate major-object          default.json '.major = {"automerge": true}'
 mutate security-automerge    default.json '.vulnerabilityAlerts.automerge = true'
+mutate security-ungrouped    default.json 'del(.vulnerabilityAlerts.groupName)'
+mutate security-major-apart  default.json '.vulnerabilityAlerts.separateMajorMinor = true'
 mutate actions-major-merged  default.json '(.packageRules[] | select(.groupSlug == "github-actions-major")).automerge = true'
 mutate pin-unversioned       default.json '(.packageRules[] | select(.pinDigests == true)) |= del(.matchCurrentValue)'
 mutate lockfile-automerge    lockfile.json '.lockFileMaintenance.automerge = true'

@@ -13,7 +13,10 @@
   "vulnerabilityAlerts": {
     "labels": ["dependencies", "security"],
     "minimumReleaseAge": "2 days",
-    "automerge": false
+    "automerge": false,
+    "groupName": "security updates",
+    "groupSlug": "security",
+    "separateMajorMinor": false
   },
   "osvVulnerabilityAlerts": true,
   "packageRules": [

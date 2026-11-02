@@ -65,6 +65,10 @@ d=default.json
 # as the last package rule of each alert, so this wins over classes B and C.
 [ "$(jq -r '.vulnerabilityAlerts.minimumReleaseAge' $d)" = "2 days" ] || fail "vulnerabilityAlerts age is not 2 days"
 [ "$(jq -r '.vulnerabilityAlerts.automerge' $d)" = "false" ] || fail "vulnerabilityAlerts must set automerge false"
+# One security PR per repository (r666): Renovate's default groupName null keeps every fix in its own
+# PR; the group collects them, and separateMajorMinor false keeps majors out of a second major- branch.
+[ "$(jq -c '.vulnerabilityAlerts | {groupName, groupSlug, separateMajorMinor}' $d)" = '{"groupName":"security updates","groupSlug":"security","separateMajorMinor":false}' ] \
+  || fail "security fixes must be one group per repository (security updates, majors not separated)"
 [ "$(jq -r '.internalChecksFilter' $d)" = "strict" ] || fail "internalChecksFilter is not strict"
 [ "$(jq -r '.automerge' $d)" = "false" ] || fail "top-level automerge must be false"
 jq -e '.extends | index("helpers:pinGitHubActionDigests")' $d >/dev/null || fail "Actions are not pinned"

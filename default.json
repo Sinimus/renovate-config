@@ -5,6 +5,7 @@
   "timezone": "Europe/Prague",
   "schedule": ["* 5-20 * * 1"],
   "updateNotScheduled": false,
+  "rebaseWhen": "conflicted",
   "labels": ["dependencies"],
   "prConcurrentLimit": 5,
   "minimumReleaseAge": "7 days",

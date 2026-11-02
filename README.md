@@ -33,7 +33,7 @@ The version must be the release tag exactly, with its `v` where the project uses
 
 | Setting | Value | Note |
 |---|---|---|
-| Schedule | Monday 05:00 to 08:59, `Europe/Prague` | Cron `* 5-8 * * 1`; `updateNotScheduled: false` keeps existing PRs still outside the window |
+| Schedule | Monday 05:00 to 20:59, `Europe/Prague` | Cron `* 5-20 * * 1` (owner's ruling r668, 2 November 2026: a window of 05:00 to 08:59 saw no Renovate run after the checks turned green); `updateNotScheduled: false` keeps existing PRs still outside the window |
 | Grouping | One PR "weekly updates" per repository for minor, patch, digest and pin updates | Major updates stay one PR per dependency; monorepo groups from `config:recommended` still apply |
 | Release age | `minimumReleaseAge: "7 days"`, `internalChecksFilter: "strict"` | No branch or PR exists until the version is 7 days old |
 | Security fixes | `vulnerabilityAlerts` with `minimumReleaseAge: "2 days"`, `automerge: false`, group `security updates` and `separateMajorMinor: false` | Raised on any day (they skip schedule and limits), all in one PR per repository (`renovate/security`, majors included), for versions at least 2 days old; never merged by Renovate (owner's rulings r616, 30 October 2026, and r666, 2 November 2026) |
@@ -57,7 +57,7 @@ An update merges itself only when it passes **A** and then **B** or **C**. Every
 
 **C, the whole weekly group in repositories with browser tests**: `jotl-companion`, `hegemony-companion-app`, `gwt-new_zealand-companion`, `root-companion`, `stationfall-companion-app`, `hanka-website`, `sinimus-portfolio`. Their pull requests build the production image from the Dockerfile that ships, start it and run a Playwright suite in headless Chromium that opens every page (the jotl, hegemony, gwt, root and stationfall suites read `e2e/routes.json`; hanka-website and sinimus-portfolio walk their pages in `e2e/smoke.spec.ts`) and fail on `pageerror` or `console.error`. In `hanka-website` the suite also sends an empty `POST /api/contact` and expects 400; the CI container there has placeholder Brevo values and `api.brevo.com` resolves to the loopback, so no mail can leave. The deploy job needs the browser checks in every class C repository except `hanka-website`, which Coolify deploys by webhook on every push to `main`; there the gate is the pull request itself, since Renovate merges only when every check run is green. GitHub Actions are excluded in class C, because the workflows of these repositories build, gate or trigger the deploy.
 
-Renovate merges only inside the schedule window (Monday 05:00 to 08:59). With `updateNotScheduled: false` the branch worker stops at the schedule check before it reaches the merge step (`lib/workers/repository/update/branch/index.ts`), so a PR whose checks turn green after the last run of the window waits for the next Monday.
+Renovate merges only inside the schedule window (Monday 05:00 to 20:59). With `updateNotScheduled: false` the branch worker stops at the schedule check before it reaches the merge step (`lib/workers/repository/update/branch/index.ts`), so a PR whose checks turn green after the last run of the window waits for the next Monday.
 
 Renovate merges a group only when every update in it may automerge (`lib/workers/repository/updates/generate.ts`, `config.automerge = upgrades.every(...)`), which is why class B needs its own groups.
 

@@ -83,6 +83,17 @@
       "pinDigests": true
     },
     {
+      "description": "Base images in a Dockerfile follow their tag: only the digest moves, so a base never jumps to another Python, Node or tool version by itself. A new minor or major version is a deliberate change of the Dockerfile.",
+      "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "A release time for a base image is not reliably available (GHCR sends none, and the Docker Hub API refuses anonymous paging past 1000 tags), so under the 7-day rule a base image digest waits forever and holds the whole weekly group. Base images in a Dockerfile are raised without the age check; the 7-day rule stays for libraries.",
+      "matchManagers": ["dockerfile"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and are merged (or deployed) only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
       "matchRepositories": [
         "Sinimus/jotl-companion",

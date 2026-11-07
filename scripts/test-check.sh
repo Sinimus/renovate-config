@@ -33,6 +33,7 @@ BT='(.packageRules[] | select(.groupSlug == "weekly-tooling"))'
 BA='(.packageRules[] | select(.automerge == true and .matchManagers == ["github-actions"]))'
 
 mutate c-extra-repo          default.json "$C.matchRepositories += [\"Sinimus/homegym\"]"
+mutate c-missing-app-repo    default.json "$C.matchRepositories -= [\"Sinimus/rag-service\"]"
 mutate c-major               default.json "$C.matchUpdateTypes += [\"major\"]"
 mutate c-includes-actions    default.json "del($C.matchManagers)"
 mutate c-lockfile            default.json "$C.matchUpdateTypes += [\"lockFileMaintenance\"]"

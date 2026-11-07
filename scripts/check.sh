@@ -77,6 +77,14 @@ jq -e '.extends | index("helpers:pinGitHubActionDigests")' $d >/dev/null || fail
 [ "$(jq -r '.osvVulnerabilityAlerts' $d)" = "true" ] || fail "osvVulnerabilityAlerts is not on"
 [ "$(jq -c '[.packageRules[] | select(.matchDatasources == ["docker"] and has("minimumReleaseAge") and .minimumReleaseAge == null) | {p: .matchPackageNames, u: .matchUpdateTypes}]' $d)" = '[{"p":["ghcr.io/sinimus/**"],"u":["digest"]}]' ] \
   || fail "the docker age waiver must be exactly ghcr.io/sinimus/** digests"
+# Base images of a Dockerfile: only the digest moves (minor and major off) and the age check is off,
+# because a floating tag has no reliable release time. Exactly one rule each, scoped to the dockerfile manager.
+jq -e '[.packageRules[] | select(.matchManagers == ["dockerfile"] and has("minimumReleaseAge") and .minimumReleaseAge == null)]
+  | length == 1 and (.[0] | has("matchUpdateTypes") | not) and (.[0] | has("matchPackageNames") | not)' $d >/dev/null \
+  || fail "the Dockerfile age waiver must be exactly one rule for the dockerfile manager, all update types"
+jq -e '[.packageRules[] | select(.matchManagers == ["dockerfile"] and .enabled == false)]
+  | length == 1 and (.[0].matchUpdateTypes == ["major", "minor"])' $d >/dev/null \
+  || fail "Dockerfile base images must have major and minor updates off, and only those"
 jq -e '.packageRules[] | select(.groupSlug == "github-actions") | .matchManagers == ["github-actions"] and (.matchUpdateTypes | index("major") | not)' $d >/dev/null \
   || fail "GitHub Actions group missing or includes major updates"
 jq -e '[.packageRules[] | select(.groupSlug == "github-actions-major")] | length == 1 and (.[0].matchManagers == ["github-actions"]) and (.[0].matchUpdateTypes == ["major"]) and (.[0].automerge != true)' $d >/dev/null \

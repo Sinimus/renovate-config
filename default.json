@@ -94,7 +94,7 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and are merged (or deployed) only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
+      "description": "Automerge class C: the whole weekly group (base image digests and non-major library updates), in repositories whose pull requests build the production image and open every key page in a headless browser before the deploy, and in application repositories whose image reaches the server only through a separate gated deploy (snapshot, health check, rollback). GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
       "matchRepositories": [
         "Sinimus/jotl-companion",
         "Sinimus/hegemony-companion-app",
@@ -102,7 +102,10 @@
         "Sinimus/root-companion",
         "Sinimus/stationfall-companion-app",
         "Sinimus/hanka-website",
-        "Sinimus/sinimus-portfolio"
+        "Sinimus/sinimus-portfolio",
+        "Sinimus/rag-service",
+        "Sinimus/kuzu-mcp-server",
+        "Sinimus/nanoclaw"
       ],
       "matchManagers": ["!github-actions"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],

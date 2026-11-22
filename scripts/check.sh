@@ -20,7 +20,9 @@ CLASS_B=(
 )
 # Class C: pull requests build the production image and open every key page in a headless browser;
 # the deploy runs only after those checks (hanka-website deploys by Coolify webhook, so there the
-# green PR check is the gate). The whole weekly group automerges, Actions excepted.
+# green PR check is the gate). Since RS261122-8 (22 November 2026) also the repositories whose image the
+# server deploys through its own gated PR (images.env), not from this repository. The whole weekly group
+# automerges, Actions excepted.
 CLASS_C=(
   Sinimus/jotl-companion
   Sinimus/hegemony-companion-app
@@ -29,6 +31,14 @@ CLASS_C=(
   Sinimus/stationfall-companion-app
   Sinimus/hanka-website
   Sinimus/sinimus-portfolio
+  Sinimus/qdrant-dedup
+  Sinimus/kb-consolidate
+  Sinimus/bm25-embed
+  Sinimus/media
+  Sinimus/qdrant-ingest
+  Sinimus/docs-runtime
+  Sinimus/rp
+  Sinimus/fragnerka-assist
 )
 # The only package names the "weekly tooling" group may hold.
 TOOLING=(
@@ -61,10 +71,12 @@ fi
 # 2. Invariants of default.json.
 d=default.json
 [ "$(jq -r '.minimumReleaseAge' $d)" = "7 days" ] || fail "minimumReleaseAge is not 7 days"
-# Security PRs: 2-day fast path (r616), never automerged. Renovate applies vulnerabilityAlerts
-# as the last package rule of each alert, so this wins over classes B and C.
+# Security PRs: 2-day fast path (r616); since RS261122-8 (22 November 2026) Renovate merges them itself, in
+# every repository, once every check run is green (platformAutomerge off, as in classes B and C). Renovate
+# applies vulnerabilityAlerts as the last package rule of each alert, so this wins over the classes.
 [ "$(jq -r '.vulnerabilityAlerts.minimumReleaseAge' $d)" = "2 days" ] || fail "vulnerabilityAlerts age is not 2 days"
-[ "$(jq -r '.vulnerabilityAlerts.automerge' $d)" = "false" ] || fail "vulnerabilityAlerts must set automerge false"
+[ "$(jq -c '.vulnerabilityAlerts | {automerge, automergeType, platformAutomerge}' $d)" = '{"automerge":true,"automergeType":"pr","platformAutomerge":false}' ] \
+  || fail "vulnerabilityAlerts must automerge as a PR only after every check run (platformAutomerge false)"
 # One security PR per repository (r666): Renovate's default groupName null keeps every fix in its own
 # PR; the group collects them, and separateMajorMinor false keeps majors out of a second major- branch.
 [ "$(jq -c '.vulnerabilityAlerts | {groupName, groupSlug, separateMajorMinor}' $d)" = '{"groupName":"security updates","groupSlug":"security","separateMajorMinor":false}' ] \
@@ -91,10 +103,11 @@ jq -e '[.packageRules[] | select(.groupSlug == "github-actions-major")] | length
   || fail "major Actions must be one group per repository, never automerged"
 
 # 3. Automerge classes (r617).
-# Every automerge: true anywhere in the preset sits in exactly the three class rules below; nothing
-# else (top-level, update-type objects such as major/minor, lockFileMaintenance) may turn it on.
-[ "$(jq '[.. | objects | select(.automerge == true)] | length' $d)" = "3" ] \
-  || fail "automerge: true must appear exactly three times (class C, class B tooling, class B Actions)"
+# Every automerge: true anywhere in the preset sits in the three class rules below or in vulnerabilityAlerts
+# (checked above); nothing else (top-level, update-type objects such as major/minor, lockFileMaintenance)
+# may turn it on.
+[ "$(jq '[.. | objects | select(.automerge == true)] | length' $d)" = "4" ] \
+  || fail "automerge: true must appear exactly four times (class C, class B tooling, class B Actions, vulnerabilityAlerts)"
 [ "$(jq '[.packageRules[] | select(.automerge == true)] | length' $d)" = "3" ] \
   || fail "automerge: true is allowed only inside packageRules"
 
@@ -163,6 +176,15 @@ jq -e --argjson B "$B" '
     and (($p[$off[0]].matchFileNames // []) | length > 0)
     and ($off[0] > $on)' $d >/dev/null \
   || fail "Actions in deploying workflows must be a later rule with automerge false"
+
+# The GHCR credential is a reference to a Mend app secret, never a value: this repository is public.
+[ "$(jq -c '.hostRules | map({matchHost, hostType, token})' $d)" = '[{"matchHost":"ghcr.io","hostType":"docker","token":"{{ secrets.GHCR_READ_TOKEN }}"}]' ] \
+  || fail "hostRules must be exactly ghcr.io (docker) with the token {{ secrets.GHCR_READ_TOKEN }}"
+for f in default.json lockfile.json github-binaries.json; do
+  jq -e '[.. | objects | select(has("token") or has("password") or has("username"))
+    | [.token, .password, .username] | map(select(. != null))[] | select(test("^\\{\\{ secrets\\.[A-Z0-9_]+ \\}\\}$") | not)] | length == 0' "$f" >/dev/null \
+    || fail "$f holds a credential that is not a {{ secrets.NAME }} reference"
+done
 
 # Digest pin of the last FROM only for versioned tags (an unversioned tag has no release timestamp,
 # so the 7-day rule would hold its digest updates forever).

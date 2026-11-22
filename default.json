@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, automerge only by class B (tooling, non-deploying repositories) or class C (repositories with browser tests before deploy), ruling r617.",
+  "description": "Sinimus shared Renovate config: weekly grouped PRs, 7-day release age, SHA-pinned Actions, automerge only by class B (tooling, non-deploying repositories) or class C (repositories with browser tests before deploy, or with an image the server deploys through its own gated PR), rulings r617 and RS261122-8; security PRs merge themselves after every check run is green.",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "timezone": "Europe/Prague",
   "schedule": ["* 5-20 * * 1"],
@@ -14,12 +14,22 @@
   "vulnerabilityAlerts": {
     "labels": ["dependencies", "security"],
     "minimumReleaseAge": "2 days",
-    "automerge": false,
+    "automerge": true,
+    "automergeType": "pr",
+    "platformAutomerge": false,
     "groupName": "security updates",
     "groupSlug": "security",
     "separateMajorMinor": false
   },
   "osvVulnerabilityAlerts": true,
+  "hostRules": [
+    {
+      "description": "Read access to the owner's private GHCR images (ghcr.io/sinimus/*), so Renovate sees their digests (Dependency Dashboard of Sinimus/server: \"No docker auth found\"). The value is the Mend app secret GHCR_READ_TOKEN (Credentials of the organization), never a token in the repository.",
+      "matchHost": "ghcr.io",
+      "hostType": "docker",
+      "token": "{{ secrets.GHCR_READ_TOKEN }}"
+    }
+  ],
   "packageRules": [
     {
       "description": "Update types that carry no release timestamp are raised without the age check (a rule for them would hold the PR forever). Lock file maintenance relies on the repo's own pnpm minimumReleaseAge or uv exclude-newer, see README.",
@@ -94,7 +104,7 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and are merged (or deployed) only after those checks. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
+      "description": "Automerge class C: the whole weekly group, in repositories whose pull requests build the production image, open every key page in a headless browser and are merged (or deployed) only after those checks, and (RS261122-8) in repositories whose image the server deploys through its own gated PR. GitHub Actions excluded. Renovate merges itself only when every check run on the branch is green.",
       "matchRepositories": [
         "Sinimus/jotl-companion",
         "Sinimus/hegemony-companion-app",
@@ -102,7 +112,15 @@
         "Sinimus/root-companion",
         "Sinimus/stationfall-companion-app",
         "Sinimus/hanka-website",
-        "Sinimus/sinimus-portfolio"
+        "Sinimus/sinimus-portfolio",
+        "Sinimus/qdrant-dedup",
+        "Sinimus/kb-consolidate",
+        "Sinimus/bm25-embed",
+        "Sinimus/media",
+        "Sinimus/qdrant-ingest",
+        "Sinimus/docs-runtime",
+        "Sinimus/rp",
+        "Sinimus/fragnerka-assist"
       ],
       "matchManagers": ["!github-actions"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
